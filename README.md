@@ -4,12 +4,12 @@ Implementation based on Confluent repository [kafka-streams-examples](https://gi
 
 >## Instructions to run
 
-You can run in two ways, first by the script (start.sh) or manually:
+You can run it in two ways, first through the scripts or manually:
 
-#### Script
+#### Scripts
 
-1. Execute script ./start.sh
-2. To stop ./stop.sh
+1. Execute script `./start.sh`
+2. To stop `./stop.sh`
 
 #### Manual
 
