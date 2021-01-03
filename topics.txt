@@ -1,0 +1,8 @@
+bronze
+customers
+gold
+orders
+platinum
+silver
+_confluent-monitoring
+
