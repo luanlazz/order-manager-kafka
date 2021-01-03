@@ -2,7 +2,6 @@ package io.confluent.examples.streams.microservices.util;
 
 import io.confluent.examples.streams.avro.microservices.Order;
 import io.confluent.examples.streams.avro.microservices.OrderValidation;
-import io.confluent.examples.streams.avro.microservices.Product;
 import io.confluent.examples.streams.kafka.EmbeddedSingleNodeKafkaCluster;
 import io.confluent.examples.streams.microservices.domain.Schemas;
 import io.confluent.examples.streams.microservices.domain.Schemas.Topic;
@@ -28,7 +27,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,15 +48,15 @@ public class MicroserviceTestUtils {
 
   @ClassRule
   public static final EmbeddedSingleNodeKafkaCluster CLUSTER = new EmbeddedSingleNodeKafkaCluster(
-      new Properties() {
-        {
-          //Transactions need durability so the defaults require multiple nodes.
-          //For testing purposes set transactions to work with a single kafka broker.
-          put(KafkaConfig.TransactionsTopicReplicationFactorProp(), "1");
-          put(KafkaConfig.TransactionsTopicMinISRProp(), "1");
-          put(KafkaConfig.TransactionsTopicPartitionsProp(), "1");
-        }
-      });
+          new Properties() {
+            {
+              //Transactions need durability so the defaults require multiple nodes.
+              //For testing purposes set transactions to work with a single kafka broker.
+              put(KafkaConfig.TransactionsTopicReplicationFactorProp(), "1");
+              put(KafkaConfig.TransactionsTopicMinISRProp(), "1");
+              put(KafkaConfig.TransactionsTopicPartitionsProp(), "1");
+            }
+          });
 
   @AfterClass
   public static void stopCluster() {
@@ -79,13 +77,13 @@ public class MicroserviceTestUtils {
   public static <K, V> List<V> read(final Schemas.Topic<K, V> topic, final int numberToRead,
                                     final String bootstrapServers) throws InterruptedException {
     return readKeyValues(topic, numberToRead, bootstrapServers).stream().map(kv -> kv.value)
-        .collect(Collectors.toList());
+            .collect(Collectors.toList());
   }
 
   public static <K, V> List<K> readKeys(final Schemas.Topic<K, V> topic, final int numberToRead,
                                         final String bootstrapServers) throws InterruptedException {
     return readKeyValues(topic, numberToRead, bootstrapServers).stream().map(kv -> kv.key)
-        .collect(Collectors.toList());
+            .collect(Collectors.toList());
   }
 
   public static <K, V> List<KeyValue<K, V>> readKeyValues(final Schemas.Topic<K, V> topic,
@@ -160,9 +158,9 @@ public class MicroserviceTestUtils {
         consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         final KafkaConsumer<K, V> consumer = new KafkaConsumer<>(
-            consumerConfig,
-            topic.keySerde().deserializer(),
-            topic.valueSerde().deserializer()
+                consumerConfig,
+                topic.keySerde().deserializer(),
+                topic.valueSerde().deserializer()
         );
         consumer.subscribe(singletonList(topic.name()));
 
@@ -170,7 +168,7 @@ public class MicroserviceTestUtils {
           final ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(100));
           for (final ConsumerRecord<K, V> record : records) {
             log.info("Tailer[" + topic.name() + "-Offset:" + record.offset() + "]: " + record.key()
-                + "->" + record.value());
+                    + "->" + record.value());
           }
         }
         consumer.close();
@@ -198,9 +196,9 @@ public class MicroserviceTestUtils {
 
   public static <K, V> void send(final Topic<K, V> topic, final Collection<KeyValue<K, V>> stuff) {
     try (final KafkaProducer<K, V> producer = new KafkaProducer<>(
-        producerConfig(CLUSTER),
-        topic.keySerde().serializer(),
-        topic.valueSerde().serializer()))
+            producerConfig(CLUSTER),
+            topic.keySerde().serializer(),
+            topic.valueSerde().serializer()))
     {
       for (final KeyValue<K, V> order : stuff) {
         producer.send(new ProducerRecord<>(topic.name(), order.key, order.value)).get();
@@ -212,10 +210,18 @@ public class MicroserviceTestUtils {
 
   public static void sendOrders(final List<Order> orders) {
     final List<KeyValue<String, Order>> collect = orders
-        .stream()
-        .map(o -> new KeyValue<>(o.getId(), o))
-        .collect(Collectors.toList());
+            .stream()
+            .map(o -> new KeyValue<>(o.getId(), o))
+            .collect(Collectors.toList());
     send(Topics.ORDERS, collect);
+  }
+
+  public static void sendOrderValuations(final List<OrderValidation> orderValidations) {
+    final List<KeyValue<String, OrderValidation>> collect = orderValidations
+            .stream()
+            .map(o -> new KeyValue<>(o.getOrderId(), o))
+            .collect(Collectors.toList());
+    send(Topics.ORDER_VALIDATIONS, collect);
   }
 
   public static <T> T getWithRetries(final Invocation.Builder builder,

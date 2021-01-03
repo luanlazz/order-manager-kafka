@@ -2,6 +2,7 @@ bronze
 customers
 gold
 orders
+order-validations
 platinum
 silver
 _confluent-monitoring
