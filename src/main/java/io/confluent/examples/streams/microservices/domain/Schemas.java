@@ -8,6 +8,8 @@ import static io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHE
 import io.confluent.examples.streams.avro.microservices.Order;
 import io.confluent.examples.streams.avro.microservices.OrderValidation;
 import io.confluent.examples.streams.avro.microservices.OrderValue;
+import io.confluent.examples.streams.avro.microservices.Product;
+import io.confluent.examples.streams.microservices.util.MicroserviceUtils;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 
 import java.util.HashMap;
@@ -59,6 +61,7 @@ public class Schemas {
 
     public final static Map<String, Topic<?, ?>> ALL = new HashMap<>();
     public static Topic<String, Order> ORDERS;
+    public static Topic<Product, Integer> WAREHOUSE_INVENTORY;
     public static Topic<String, OrderValidation> ORDER_VALIDATIONS;
 
     static {
@@ -68,6 +71,7 @@ public class Schemas {
     private static void createTopics() {
       ORDERS = new Topic<>("orders", Serdes.String(), new SpecificAvroSerde<>());
       ORDER_VALIDATIONS = new Topic<>("order-validations", Serdes.String(), new SpecificAvroSerde<>());
+      WAREHOUSE_INVENTORY = new Topic<>("warehouse-inventory", new MicroserviceUtils.ProductTypeSerde(), Serdes.Integer());
       ORDER_VALUE_SERDE = new SpecificAvroSerde<>();
     }
   }

@@ -14,7 +14,7 @@ check_sqlite3 || exit 1
 
 compile_kafka_streams_examples || exit 1;
 
-confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
+#confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
 grep -qxF 'auto.offset.reset=earliest' $CONFLUENT_HOME/etc/ksqldb/ksql-server.properties || echo 'auto.offset.reset=earliest' >> $CONFLUENT_HOME/etc/ksqldb/ksql-server.properties
 confluent local services start
 sleep 5

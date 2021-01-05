@@ -2,6 +2,7 @@ package io.confluent.examples.streams.microservices.util;
 
 import io.confluent.examples.streams.avro.microservices.Order;
 import io.confluent.examples.streams.avro.microservices.OrderValidation;
+import io.confluent.examples.streams.avro.microservices.Product;
 import io.confluent.examples.streams.kafka.EmbeddedSingleNodeKafkaCluster;
 import io.confluent.examples.streams.microservices.domain.Schemas;
 import io.confluent.examples.streams.microservices.domain.Schemas.Topic;
@@ -222,6 +223,22 @@ public class MicroserviceTestUtils {
             .map(o -> new KeyValue<>(o.getOrderId(), o))
             .collect(Collectors.toList());
     send(Topics.ORDER_VALIDATIONS, collect);
+  }
+
+  public static void sendInventory(final List<KeyValue<Product, Integer>> inventory,
+                                   final Schemas.Topic<Product, Integer> topic) {
+    try (final KafkaProducer<Product, Integer> stockProducer = new KafkaProducer<>(
+            producerConfig(CLUSTER),
+            topic.keySerde().serializer(),
+            Schemas.Topics.WAREHOUSE_INVENTORY.valueSerde().serializer()))
+    {
+      for (final KeyValue<Product, Integer> kv : inventory) {
+        stockProducer.send(new ProducerRecord<>(Topics.WAREHOUSE_INVENTORY.name(), kv.key, kv.value))
+                .get();
+      }
+    } catch (final InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
   }
 
   public static <T> T getWithRetries(final Invocation.Builder builder,
