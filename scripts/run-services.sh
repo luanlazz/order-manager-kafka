@@ -25,6 +25,10 @@ PIDS+=($!)
 echo "Giving OrdersService time to start"
 sleep 30
 
+echo "Adding Inventory"
+java -cp $JAR io.confluent.examples.streams.microservices.AddInventory --bootstrap-servers $BOOTSTRAP_SERVERS $CONFIG_FILE_ARG $ADDITIONAL_ARGS >$LOG_DIR/AddInventory.log 2>&1 &
+sleep 5
+
 for SERVICE in "OrderDetailsService" "FraudService" "InventoryService"; do
   echo "Starting $SERVICE"
   java -cp $JAR io.confluent.examples.streams.microservices.$SERVICE --bootstrap-servers $BOOTSTRAP_SERVERS --schema-registry $SCHEMA_REGISTRY_URL $CONFIG_FILE_ARG $ADDITIONAL_ARGS >$LOG_DIR/$SERVICE.log 2>&1 &
