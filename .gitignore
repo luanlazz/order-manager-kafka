@@ -10,6 +10,7 @@ __pycache__
 *.req
 *.log
 *.jar
+*.pids
 Untitled*
 docs/_build
 docs/README.md
