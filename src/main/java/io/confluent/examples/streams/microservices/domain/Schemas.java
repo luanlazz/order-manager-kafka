@@ -1,15 +1,12 @@
 package io.confluent.examples.streams.microservices.domain;
 
+import io.confluent.examples.streams.avro.microservices.*;
+import io.confluent.examples.streams.microservices.util.MicroserviceUtils.ProductTypeSerde;
 import static io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig.BASIC_AUTH_CREDENTIALS_SOURCE;
 import static io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig.USER_INFO_CONFIG;
 import static io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG;
 import static io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_USER_INFO_CONFIG;
 
-import io.confluent.examples.streams.avro.microservices.Order;
-import io.confluent.examples.streams.avro.microservices.OrderValidation;
-import io.confluent.examples.streams.avro.microservices.OrderValue;
-import io.confluent.examples.streams.avro.microservices.Product;
-import io.confluent.examples.streams.microservices.util.MicroserviceUtils;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 
 import java.util.HashMap;
@@ -61,6 +58,9 @@ public class Schemas {
 
     public final static Map<String, Topic<?, ?>> ALL = new HashMap<>();
     public static Topic<String, Order> ORDERS;
+    public static Topic<String, OrderEnriched> ORDERS_ENRICHED;
+    public static Topic<String, Payment> PAYMENTS;
+    public static Topic<Long, Customer> CUSTOMERS;
     public static Topic<Product, Integer> WAREHOUSE_INVENTORY;
     public static Topic<String, OrderValidation> ORDER_VALIDATIONS;
 
@@ -70,8 +70,11 @@ public class Schemas {
 
     private static void createTopics() {
       ORDERS = new Topic<>("orders", Serdes.String(), new SpecificAvroSerde<>());
+      ORDERS_ENRICHED = new Topic<>("orders-enriched", Serdes.String(), new SpecificAvroSerde<>());
+      PAYMENTS = new Topic<>("payments", Serdes.String(), new SpecificAvroSerde<>());
+      CUSTOMERS = new Topic<>("customers", Serdes.Long(), new SpecificAvroSerde<>());
       ORDER_VALIDATIONS = new Topic<>("order-validations", Serdes.String(), new SpecificAvroSerde<>());
-      WAREHOUSE_INVENTORY = new Topic<>("warehouse-inventory", new MicroserviceUtils.ProductTypeSerde(), Serdes.Integer());
+      WAREHOUSE_INVENTORY = new Topic<>("warehouse-inventory", new ProductTypeSerde(), Serdes.Integer());
       ORDER_VALUE_SERDE = new SpecificAvroSerde<>();
     }
   }
